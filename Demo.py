@@ -17,7 +17,7 @@ if fl is not None:
     st.write(filename)
     df = pd.read_csv(filename, encoding="ISO-8859-1")
 else:
-    os.chdir(r'G:\DSProject')
+    os.chdir(r'C:\Users\ADMIN\Documents\SalesProject')
     df = pd.read_csv('traincsvFormated(Edited3).csv', encoding="ISO-8859-1")
 # Ensure all columns have compatible types for Arrow serialization
 for column in df.columns:
