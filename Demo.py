@@ -1,16 +1,16 @@
 import streamlit as st
 import plotly.express as px
 import pandas as pd
-import matplotlib.pyplot as plt
 import os
 import warnings
+import matplotlib.pyplot as plt
 
 warnings.filterwarnings('ignore')
 
 st.set_page_config(page_title="Superstore!!!", page_icon=":bar_chart:", layout="wide")
 
 st.title(" :bar_chart: Sample SuperStore EDA")
-st.markdown('<style>div.block-container{padding-top:1rem;}</style>', unsafe_allow_html=True)
+st.markdown('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
 
 fl = st.file_uploader(":file_folder: Upload a file", type=(["csv", "txt", "xlsx", "xls"]))
 if fl is not None:
@@ -45,6 +45,12 @@ with col2:
 df = df[(df["Order Date"] >= date1) & (df["Order Date"] <= date2)].copy()
 
 st.sidebar.header("Choose your filter: ")
+# create for country
+country = st.sidebar.multiselect("Pick Your Country", df["Country"].unique())
+if not country:
+    df1 = df.copy()
+else:
+    df1 = df [df["Country"].isin(country)]    
 # Create for Region
 region = st.sidebar.multiselect("Pick your Region", df["Region"].unique())
 if not region:
@@ -61,25 +67,39 @@ else:
 
 # Create for City
 city = st.sidebar.multiselect("Pick the City", df3["City"].unique())
+if not city:
+    df4 = df3.copy()
+else:
+    df4 = df3[df3["City"].isin(city)]    
 
-# Filter the data based on Region, State and City
+# Filter the data based on Region, State and City and country
 
-if not region and not state and not city:
+if not country and not region and not state and not city:
     filtered_df = df
-elif not state and not city:
-    filtered_df = df[df["Region"].isin(region)]
+elif not country:
+    filtered_df = df1
+elif not country and not city:
+    filtered_df = df[df["Region"].isin(region)]    
 elif not region and not city:
     filtered_df = df[df["State"].isin(state)]
-elif state and city:
-    filtered_df = df3[df["State"].isin(state) & df3["City"].isin(city)]
+elif not state and not city:
+    filtered_df = df[df["Region"].isin(region)]
+elif country and city:
+    filtered_df = df3[df["Country"].isin(country) & df3["City"].isin(city)]    
 elif region and city:
-    filtered_df = df3[df["Region"].isin(region) & df3["City"].isin(city)]
+    filtered_df = df3[df["Region"].isin(state) & df3["City"].isin(city)]
+elif state and city:
+    filtered_df = df3[df["State"].isin(region) & df3["City"].isin(city)]
 elif region and state:
     filtered_df = df3[df["Region"].isin(region) & df3["State"].isin(state)]
+elif country:
+    filtered_df = df3[df3["Country"].isin(country) & df3["Region"].isin(region)]
+elif region:
+    filtered_df = df3[df3["Region"].isin(region)]    
 elif city:
-    filtered_df = df3[df3["City"].isin(city)]
+    filtered_df = df3[df3["City"].isin(city)]  
 else:
-    filtered_df = df3[df3["Region"].isin(region) & df3["State"].isin(state) & df3["City"].isin(city)]
+    filtered_df = df3[df3["Region"].isin(region) & df3["State"].isin(state) & df3["City"].isin(city) & df3["Country"].isin(country)]
 
 category_df = filtered_df.groupby(by=["Category"], as_index=False)["Sales"].sum()
 
@@ -87,13 +107,13 @@ with col1:
     st.subheader("Category wise Sales")
     fig = px.bar(category_df, x="Category", y="Sales", text=['${:,.2f}'.format(x) for x in category_df["Sales"]],
                  template="seaborn")
-    st.plotly_chart(fig, use_container_width=True, height=200)
+    st.plotly_chart(fig, use_container_width=True, height=150)
 
 with col2:
     st.subheader("Region wise Sales")
     fig = px.pie(filtered_df, values="Sales", names="Region", hole=0.5)
     fig.update_traces(text=filtered_df["Region"], textposition="outside")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, height= 150)
 
 cl1, cl2 = st.columns((2))
 with cl1:
