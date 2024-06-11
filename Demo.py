@@ -50,13 +50,13 @@ country = st.sidebar.multiselect("Pick Your Country", df["Country"].unique())
 if not country:
     df1 = df.copy()
 else:
-    df1 = df [df["Country"].isin(country)]    
+    df1 = df[df["Country"].isin(country)]    
 # Create for Region
-region = st.sidebar.multiselect("Pick your Region", df["Region"].unique())
+region = st.sidebar.multiselect("Pick your Region", df1["Region"].unique())
 if not region:
-    df2 = df.copy()
+    df2 = df1.copy()
 else:
-    df2 = df[df["Region"].isin(region)]
+    df2 = df1[df1["Region"].isin(region)]
 
 # Create for State
 state = st.sidebar.multiselect("Pick the State", df2["State"].unique())
